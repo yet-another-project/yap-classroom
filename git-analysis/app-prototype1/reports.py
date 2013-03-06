@@ -1,9 +1,15 @@
 from yap import *
 from optparse import OptionParser
 import ast
+import configparser
 
-MYLIB_PATH = '/home/flav/projects/yet-another-project/My-library'
-CACHE_DIR = '/home/flav/projects/yet-another-project/yap-analysis/data'
+# load configs
+config = configparser.ConfigParser()
+config.sections()
+config.read('prototype1.ini')
+
+MYLIB_PATH = config['Directories']['REPO_LOCATION']
+CACHE_DIR = config['Directories']['CACHE_DIR']
 
 raw = RawRepo(MYLIB_PATH, cachedir=CACHE_DIR)
 
