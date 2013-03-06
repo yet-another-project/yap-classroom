@@ -24,7 +24,7 @@ Do not forget to set the paths
 
 To run prototype 1:
 
-    python app-prototype1/reporty.py -o
+    python app-prototype1/reports.py -o
 
 which will show an overview. This will take a while, as it builds up a cache.
 Subsequent runs should be faster.
