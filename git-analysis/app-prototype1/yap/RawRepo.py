@@ -11,7 +11,6 @@ from time import mktime
 import pickle
 import yap
 from collections import defaultdict
-import jellyfish as jf
 
 class RawRepo:
     """
@@ -265,27 +264,8 @@ class RawRepo:
                 self.merge_commits.append(cid)
                 identities_and_merges[commit['identity']].append(cid)
             if 'parent' in commit:
-                print("cid", cid)
                 #print("DBG (alpha/app/yap/RawRepo.py:260) commit['parent']", commit['parent']) # XXX: what to do?
-                deleted_paths = [path for path, c in commit['contents'].items() if c == None]
-                available_paths = [path for path, c in commit['contents'].items() if path not in deleted_paths]
-                for deleted_path in deleted_paths:
-                    print("deleted_path", deleted_path)
-                    cid2 = self.get_related_path_commits(deleted_path, lessthan=cid)[-1]
-                    if self.commits[cid2]['info2'][deleted_path]['type'] & RawRepo.TYPE_BINARY:
-                        continue
-                    print("commit['parent']", commit['parent'])
-                    print("cid2", cid2)
-                    text1 = self.commits[cid2]['contents'][deleted_path].decode('utf-8')
-                    for available_path in available_paths:
-                        #TODO if similarity of deleted_path and available_path
-                        if commit['info2'][available_path]['type'] & RawRepo.TYPE_BINARY:
-                            continue
-
-                        print("available_path", available_path)
-                        text2 = commit['contents'][available_path].decode('utf-8')
-                        lev = jf.levenshtein_distance(text1, text2)
-                        print("lev", lev)
+                pass
 
         for iid, identity in enumerate(self.identities):
             users_and_merges[identity['userid']] += identities_and_merges[iid]
@@ -311,7 +291,7 @@ class RawRepo:
         identities_freq = []
         identities_last_appearance = {}
 
-        path_to_commits = {}
+        path_to_commits = defaultdict(list)
 
         self.tags = {}
         self.refs = {}
@@ -394,20 +374,12 @@ class RawRepo:
             identities_last_appearance[identity_id] = commit_id
 
             identities_freq[identity_id] += 1
-            for info in commit['info']:
-                if 'path' in info:
-                    if info['path'] not in path_to_commits:
-                        path_to_commits[info['path']] = []
-                    path_to_commits[info['path']].append({'commit_id': commit_id, 'type': info['type']})
-                else:
-                    if 'from' in info:
-                        if info['from'] not in path_to_commits:
-                            path_to_commits[info['from']] = []
-                        path_to_commits[info['from']].append({'commit_id': commit_id, 'type': info['type']})
-                    if 'to' in info:
-                        if info['to'] not in path_to_commits:
-                            path_to_commits[info['to']] = []
-                        path_to_commits[info['to']].append({'commit_id': commit_id, 'type': info['type']})
+            paths = {path: info['type'] for path, info in commit['modifications'].items()}
+            paths.update({path[0]: info['type'] for path, info in commit['renames'].items()})
+            paths.update({path[1]: info['type'] for path, info in commit['renames'].items()})
+
+            for path, info in paths.items():
+                path_to_commits[path].append({'commit_id': commit_id, 'type': info})
 
             prev_identity_id = identity_id
             prev_ts = commit['Date']
@@ -488,12 +460,15 @@ class RawRepo:
         rest = rest[commit['log_size']:].lstrip()
 
         rest = rest.split("\0")
-        commit['info'], commit['info2'], commit['dirs'], commit['flags'] = self._commit_meta_info(rest)
+        commit['modifications'], commit['mod_and_renames'], commit['renames'], commit['dirs'], commit['flags'] = self._commit_meta_info(rest)
 
-        files = [d['path'] for d in commit['info'] if 'path' in d]
-        contents = self._get_files_from_sha(commit['sha'], files)
+        files = [path for path, d in commit['modifications'].items()] + \
+                [path[1] for path, d in commit['mod_and_renames'].items()]
 
-        commit['contents'] = contents
+        commit['contents'] = self._get_files_from_sha(commit['sha'], files)
+        commit['deletes'] = [path for path, content in commit['contents'].items() if content==None]
+        for d in commit['deletes']:
+            del commit['modifications'][d]
 
         return commit
 
@@ -505,8 +480,9 @@ class RawRepo:
         re_binary = re.compile(r'^-\t-\t(?P<path>.+)$')
         re_modified_and_renamed = re.compile(r'^(?P<lines_added>\d+)\t(?P<lines_deleted>\d+)\t$')
 
-        info = []
-        info2 = {} #TODO turn info into a dictionary instead
+        modifications = defaultdict(dict)
+        renames = defaultdict(dict)
+        mod_and_rename = defaultdict(dict)
         dirs = []
         flags = RawRepo.FLAG_NONE
         it = enumerate(lst)
@@ -516,8 +492,7 @@ class RawRepo:
                 match = match.groupdict()
                 match['type'] = RawRepo.TYPE_NEW
                 match['lines_added'] = int(match['lines_added'])
-                info2[match['path']] = match
-                info.append(match)
+                modifications[match['path']] = match
                 continue
             match = re_modified.match(item)
             if match:
@@ -525,8 +500,7 @@ class RawRepo:
                 match['type'] = RawRepo.TYPE_MODIFIED
                 match['lines_added'] = int(match['lines_added'])
                 match['lines_deleted'] = int(match['lines_deleted'])
-                info2[match['path']] = match
-                info.append(match)
+                modifications[match['path']] = match
                 continue
             match = re_rename_file.match(item)
             if match:
@@ -536,9 +510,7 @@ class RawRepo:
                 _, to_f = next(it)
                 match['from'] = from_f
                 match['to'] = to_f
-                info2[from_f] = match
-                info2[to_f] = match
-                info.append(match)
+                renames[(match['from'], match['to'])] = match
                 continue
             match = re_dirpercent.match(item)
             if match:
@@ -548,8 +520,7 @@ class RawRepo:
             if match:
                 match = match.groupdict()
                 match['type'] = RawRepo.TYPE_BINARY
-                info2[match['path']] = match
-                info.append(match)
+                modifications[match['path']] = match
                 continue
             if '' == item:
                 flags = flags | RawRepo.FLAG_MERGE
@@ -562,15 +533,13 @@ class RawRepo:
                 _, to_f = next(it)
                 match['from'] = from_f
                 match['to'] = to_f
-                info2[from_f] = match
-                info2[to_f] = match
-                info.append(match)
+                mod_and_rename[(match['from'], match['to'])] = match
                 continue
             else:
                 print("NONE at", item)
                 return None
 
-        return info, info2, dirs, flags
+        return dict(modifications), dict(mod_and_rename), dict(renames), dirs, flags
 
     def _get_files_from_sha(self, sha, files):
         from subprocess import Popen, PIPE

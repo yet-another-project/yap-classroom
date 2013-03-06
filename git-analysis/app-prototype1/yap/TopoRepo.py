@@ -148,10 +148,3 @@ class TopoRepo(nx.DiGraph):
         self.team_productivity = team_productivity
         self.longruns = longruns
         return lonewolf_scores, interactivity_scores, team_productivity
-
-    def analyze_edges(self):
-        edges = nx.algorithms.traversal.depth_first_search.dfs_edges(self)
-        for node1, node2 in edges:
-            print(yap.Commit(self.raw, node1))
-            print(yap.Commit(self.raw, node2))
-            print("---------------")

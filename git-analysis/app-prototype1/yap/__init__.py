@@ -1,4 +1,4 @@
-__all__ = ["RawRepo", "TopoRepo", "TopoPlot", "Commit", "compact", "extract", "bits", "iter_trend", "analyzed_exts", "ignored_exts"]
+__all__ = ["RawRepo", "TopoRepo", "TopoPlot", "Commit", "compact", "extract", "bits", "iter_trend"]
 from .RawRepo import RawRepo
 from .Commit import Commit
 from .TopoRepo import TopoRepo
@@ -33,7 +33,3 @@ def iter_trend(ranks):
         else:
             yield cid+1, 0
         prev_rank = rank
-
-    # '', '.MD', '.txt', '.php-dist', '.sql', '.md', '.ep', '.php', '.gan', '.css'
-analyzed_exts = ['.md', '.txt', '.php', '.css', '.js', '.sql']
-ignored_exts = ['', '.ep', '.gan']
