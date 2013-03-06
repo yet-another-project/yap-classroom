@@ -1,2 +1,4 @@
 git-analysis/app-prototype1/yap/__pycache__/*
 git-analysis/virtenv/*
+git-analysis/prototype*.ini
+*/*.cache
