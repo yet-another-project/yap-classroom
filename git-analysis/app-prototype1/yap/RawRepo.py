@@ -227,8 +227,7 @@ class RawRepo:
             "--log-size", "--boundary", "--full-history", "--numstat",
             "--dirstat=0", "-z", "--no-abbrev-commit", "-M", "--full-index", "-t",
             "--decorate"], bufsize=4096, stdout=PIPE)
-        self.rawhist = p.stdout.read().decode('utf-8')
-        p.wait()
+        self.rawhist = p.communicate()[0].decode('utf-8')
         return self.rawhist
 
     def _grouper(self, number, iterable, fillvalue=None):
