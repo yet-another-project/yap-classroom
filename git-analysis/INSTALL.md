@@ -1,7 +1,8 @@
 These are prototypes and tests for a tool which analyzes git repositories.
 
-First, ensure that the `swig suitesparse atlas-lapack` packages are installed,
-these are required by the `numpy` and `scipy` libraries.
+First, ensure that the `swig suitesparse atlas-lapack` packages (these are
+specific to Arch Linux, please modify according to your distribution) are
+installed, these are required by the `numpy` and `scipy` libraries.
 
 To create a virtual environment with all the dependencies, from this directory,
 type:
