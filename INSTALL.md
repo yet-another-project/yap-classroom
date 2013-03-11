@@ -1,4 +1,5 @@
-These are prototypes and tests for a tool which analyzes git repositories.
+These are prototypes and tests for a tool which analyzes git repositories, email
+activity and possibly other stats that needs to be tracked.
 
 First, ensure that the `swig suitesparse atlas-lapack` packages (these are
 specific to Arch Linux, please modify according to your distribution) are
@@ -17,18 +18,3 @@ This may take a while, as it fetches and it compiles some big packages.
 If it doesn't use python 3 from the virtual environment, then make sure it does:
 
     source virtenv/bin/activate
-
-## Prototype 1
-
-Configure:
-
-    cp prototype1.ini-example prototype1.ini
-
-Do not forget to set the paths
-
-To run prototype 1:
-
-    python app-prototype1/reports.py -o
-
-which will show an overview. This will take a while, as it builds up a cache.
-Subsequent runs should be faster.
