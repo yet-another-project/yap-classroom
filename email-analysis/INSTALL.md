@@ -1,7 +1,7 @@
 **Attention:** The tool specified below does a two-way sync, therefore you could
 lose email on the gmail servers if you delete them locally. Please take care!
 
-TODO: replace with getmail or fetchmail
+TODO: look into getmail or fetchmail
 
 OfflineIMAP
 ===========

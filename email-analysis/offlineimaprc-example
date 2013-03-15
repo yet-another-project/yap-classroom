@@ -28,11 +28,8 @@ remoteuser = user.name@gmail.com
 # TODO: Specify the Gmail label to be downloaded
 folderfilter = lambda foldername: foldername in 'yap/phpro-book'
 
-# Modify below only if you know what you're doing
-nametrans = lambda foldername: re.sub ('^\[gmail\]', 'bak',
-                               re.sub ('sent_mail', 'sent',
-                               re.sub ('starred', 'flagged',
-                               re.sub (' ', '_', foldername.lower()))))
+# One-way syncing
+readonly = True
 
 # Necessary as of OfflineIMAP 6.5.4
 sslcacertfile = /etc/ssl/certs/ca-certificates.crt
