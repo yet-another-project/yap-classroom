@@ -19,3 +19,7 @@ Install `offlineimap` and:
 2. Create your `localfolders` directory.
 
 3. Run `offlineimap`
+
+4. TODO: modify the paths to your maildir directory and to a cache file
+
+5. Run `./main.py`
