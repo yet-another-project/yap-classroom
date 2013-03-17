@@ -3,38 +3,49 @@
 import os
 import email
 import pickle
+import configparser
+
+def get_msgs_from_cache(cachefile):
+    with open(cachefile, 'rb') as ch:
+        print('from cache')
+        return pickle.load(ch)
+
+
+def set_cache(cachefile, data):
+    with open(cachefile, 'wb') as ch:
+        print('to cache')
+        pickle.dump(data, ch)
+
 
 def get_msgs(maildir, cachefile):
-    """
-    TODO: Write me
+    """Return a list of email.Message objects after parsing the emails found in
+    maildir or by getting them directly from the pickled cachefile
     """
     mails = []
-    maildir = os.path.join(os.path.abspath(os.path.expanduser(maildir)), 'cur')
-    cachefile = os.path.abspath(os.path.expanduser(cachefile))
+    maildir = os.path.join(maildir, 'cur')
 
     print(maildir, cachefile)
 
     try:
-        with open(cachefile, 'rb') as ch:
-            print('from cache')
-            return pickle.load(ch)
-
+        mails = get_msgs_from_cache(cachefile)
     except IOError:
         for f in os.listdir(maildir):
             with open(os.path.join(maildir, f), 'rb') as fp:
                 mails.append(email.message_from_binary_file(fp))
 
-        with open(cachefile, 'wb') as ch:
-            print('to cache')
-            pickle.dump(mails, ch)
+        set_cache(cachefile, mails)
 
-        return mails
+    return mails
 
 
 if __name__ == '__main__':
-    # TODO: config file that contains the maildir path and the cache path
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
+    maildir = os.path.abspath(os.path.expanduser(config['paths']['maildir']))
+    cachefile = os.path.abspath(os.path.expanduser(config['paths']['cachefile']))
+
     msgs = []
-    path = os.path.expanduser('~/Maildir/yap/phpro-book')
-    msgs = get_msgs(path, 'emails.cache')
+    msgs = get_msgs(maildir, cachefile)
 
     print(len(msgs))
