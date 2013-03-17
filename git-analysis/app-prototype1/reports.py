@@ -5,7 +5,6 @@ import configparser
 
 # load configs
 config = configparser.ConfigParser()
-config.sections()
 config.read('prototype1.ini')
 
 MYLIB_PATH = config['Directories']['REPO_LOCATION']
