@@ -1,5 +1,5 @@
 git-analysis/app-prototype1/yap/__pycache__/*
 v*env/*
-git-analysis/prototype*.ini
+*.ini
 *.cache
 *.pyc
