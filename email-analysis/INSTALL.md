@@ -1,8 +1,6 @@
 **Attention:** The tool specified below does a two-way sync, therefore you could
 lose email on the gmail servers if you delete them locally. Please take care!
 
-TODO: look into getmail or fetchmail
-
 OfflineIMAP
 ===========
 In order to actually have something to work with we need to download all the emails
@@ -20,6 +18,17 @@ Install `offlineimap` and:
 
 3. Run `offlineimap`
 
-4. TODO: modify the paths to your maildir directory and to a cache file
+Email-analysis
+==============
+Processing and analysing the emails:
 
-5. Run `./main.py`
+1. Copy `config.ini-example` to `config.ini` and modify the paths according to
+your setup.
+ * `cachefile` should point to an inexistent file (will be created) or to an
+  existent cache file created by previous runs of this project
+ * `maildir` is the Maildir directory created by `offlineimap` above and should
+  contain the `cur`, `new` and `tmp` directories specific for the Maildir
+  structure, make sure that the directory `cur` contains some emails to be
+  parsed
+
+2. Run `./main.py`
