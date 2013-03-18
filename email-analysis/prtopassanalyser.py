@@ -14,17 +14,22 @@ class PrToPassAnalyser(object):
         print("After filter:", len(self.msgs))
 
     def msgs_to_conversations(self):
+        #TODO: check the 'In-Reply-To' header field
+        # if it isn't present, then the message is a conversation starter so I
+        # put it into a new list, every other message whose 'In-Reply-To' field
+        # matches any 'Message-Id' in that list should be added there
         pass
 
     def _is_pr_msg(self, msg):
+        """Try to separate the emails that are asking for peer-review (these are
+        the ones we're intrested about in this class
+        """
         for i in self.blacklist: # using a blacklist helps me avoid false positives
             if i in msg['Subject'].lower():
-                print(msg['Subject'], 'False')
                 return False
 
         for i in self.whitelist:
             if i in msg['Subject'].lower():
-                print(msg['Subject'], 'True')
                 return True
 
         # TODO: think about:
