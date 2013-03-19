@@ -43,9 +43,9 @@ if __name__ == '__main__':
     config.read('config.ini')
 
     maildir = os.path.abspath(os.path.expanduser(config['paths']['maildir']))
-    cachefile = os.path.abspath(os.path.expanduser(config['paths']['cachefile']))
+    cache = os.path.abspath(os.path.expanduser(config['paths']['cachefile']))
 
     msgs = []
-    msgs = get_msgs(maildir, cachefile)
+    msgs = get_msgs(maildir, cache)
 
     print(len(msgs))

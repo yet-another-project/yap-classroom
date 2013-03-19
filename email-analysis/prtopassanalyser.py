@@ -3,7 +3,7 @@ class PrToPassAnalyser(object):
     whitelist = ('[pr]', 'peer review', 'peer-review')
 
     def __init__(self, messages):
-        """messages argument should be a list of email.Message objects that should
+        """messages param should be a list of email.Message objects that will
         be analysed
         """
         #TODO: after
@@ -21,10 +21,11 @@ class PrToPassAnalyser(object):
         pass
 
     def _is_pr_msg(self, msg):
-        """Try to separate the emails that are asking for peer-review (these are
-        the ones we're intrested about in this class
+        """Try to separate the emails that are asking for peer-review
+        (these are the ones we're intrested about in this class)
         """
-        for i in self.blacklist: # using a blacklist helps me avoid false positives
+        # using a blacklist helps me avoid false positives
+        for i in self.blacklist:
             if i in msg['Subject'].lower():
                 return False
 
@@ -38,6 +39,6 @@ class PrToPassAnalyser(object):
         # notice "PR" appearing twice above although this is a valid PR request
 
         # better match loosely and discard the conversations later when I check
-        # for the "pass" keyword in the emails than losing valid emails from the
-        # start
+        # for the "pass" keyword in the emails than losing valid emails from
+        # the start
         return False
