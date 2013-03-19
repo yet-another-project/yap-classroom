@@ -27,16 +27,6 @@ class PrToPassAnalyser(object):
                 self.conversations.append(conv.Conversation(m))
 
         print("No. conv:", len(self.conversations))
-        #use conv.Conversation here - build a list of conversations
-        #TODO: think about when an email has multiple In-Reply-To addresses
-        # RFC 822, 4021, 2822 all specify that In-Reply-To may contain multiple
-        # addresses, but no example is provided so I think it's ok to add a
-        # message to a single discussion, ie. to break the loop when a
-        # candidate discussion is found
-
-        #datetime.strptime()
-        #for c in self.conversations:
-         #   c.sort()
 
     def _is_pr_msg(self, msg):
         """Try to separate the emails that are asking for peer-review

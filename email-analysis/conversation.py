@@ -37,10 +37,9 @@ class Conversation(object):
         self.messages_id.append(message['Message-Id'])
         self.msgs.append(message)
 
-    def sort(self, key):
-        """Sort the emails in the conversations
-
-        The key parameter is passed directly to list.sort(), it has the same
-        significance
-        """
-        pass
+        #TODO: use a heap to keep conversations sorted by the Date header, this
+        # will increase performance, but I need to plug in the sort method
+        # somehow because in other contexts conversations may be sorted by
+        # something else, not by datetime
+        # datetime.strptime()
+        # import heapq
