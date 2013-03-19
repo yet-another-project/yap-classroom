@@ -1,8 +1,11 @@
 class Conversation(object):
-    def __init__(self):
+    def __init__(self, message=None):
         self.msgs = []
-        self.in_reply_to = []
-        self.message_id = []
+        self.in_reply_tos = []
+        self.messages_id = []
+
+        if message:
+            self.add_msg(message)
 
     def is_reply(self, message):
         """Check wether an email is a reply in the conversation
@@ -14,7 +17,13 @@ class Conversation(object):
         pass
 
     def add_msg(self, message):
-        pass
+        # using list extend because RFC 822, 4021 and 2822  specify that the
+        # In-Reply-To header may contain multiple addresses
+        if 'In-Reply-To' in message.keys():
+            self.in_reply_tos.extend(message['In-Reply-To'])
+
+        self.messages_id.append(message['Message-Id'])
+        self.msgs.append(message)
 
     def sort(self, key):
         """Sort the emails in the conversations
