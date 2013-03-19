@@ -5,6 +5,9 @@ import email
 import pickle
 import configparser
 
+import prtopassanalyser as ppa
+
+
 def get_msgs_from_cache(cachefile):
     with open(cachefile, 'rb') as ch:
         print('from cache')
@@ -49,3 +52,5 @@ if __name__ == '__main__':
     msgs = get_msgs(maildir, cache)
 
     print(len(msgs))
+
+    pr = ppa.PrToPassAnalyser(msgs)
