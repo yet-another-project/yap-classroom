@@ -12,9 +12,21 @@ class Conversation(object):
 
         The message should be an email.Message object, it is part of the
         conversation if it's a reply to one of the existing messages or if one
-        of the existing messages is a reply to it
+        of the existing messages is a reply to it, also the message is a part
+        of the conversation if it references any existing message
         """
-        pass
+        if message['In-Reply-To'] in self.messages_id or \
+            message['Message-Id'] in self.in_reply_tos:
+            return True
+
+        if 'References' not in message.keys():
+            return False
+
+        for ref in message['References'].split():
+            if ref in self.messages_id:
+                return True
+
+        return False
 
     def add_msg(self, message):
         # using list extend because RFC 822, 4021 and 2822  specify that the
