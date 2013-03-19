@@ -1,5 +1,3 @@
-#TODO: think about when an email has multiple In-Reply-To addresses
-
 class Conversation(object):
     def __init__(self):
         self.msgs = []

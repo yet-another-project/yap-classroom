@@ -22,6 +22,11 @@ class PrToPassAnalyser(object):
         # matches any 'Message-Id' in that list should be added there
 
         #use conv.Conversation here - build a list of conversations
+        #TODO: think about when an email has multiple In-Reply-To addresses
+        # RFC 822, 4021, 2822 all specify that In-Reply-To may contain multiple
+        # addresses, but no example is provided so I think it's ok to add a
+        # message to a single discussion, ie. to break the loop when a
+        # candidate discussion is found
         pass
 
     def _is_pr_msg(self, msg):
