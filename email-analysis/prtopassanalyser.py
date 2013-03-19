@@ -12,22 +12,31 @@ class PrToPassAnalyser(object):
         #testing remove the list comprehension in order to get lazy
         #initialization
         self.msgs = [m for m in filter(self._is_pr_msg, messages)]
+        #self.msgs = filter(self._is_pr_msg, messages)
+        self.conversations = []
 
         print("After filter:", len(self.msgs))
 
     def msgs_to_conversations(self):
-        #TODO: check the 'In-Reply-To' header field
-        # if it isn't present, then the message is a conversation starter so I
-        # put it into a new list, every other message whose 'In-Reply-To' field
-        # matches any 'Message-Id' in that list should be added there
+        for m in self.msgs:
+            for c in self.conversations:
+                if c.is_reply(m):
+                    c.add_msg(m)
+                    break
+            else: # no conversation found for this message, creating one
+                self.conversations.append(conv.Conversation(m))
 
+        print("No. conv:", len(self.conversations))
         #use conv.Conversation here - build a list of conversations
         #TODO: think about when an email has multiple In-Reply-To addresses
         # RFC 822, 4021, 2822 all specify that In-Reply-To may contain multiple
         # addresses, but no example is provided so I think it's ok to add a
         # message to a single discussion, ie. to break the loop when a
         # candidate discussion is found
-        pass
+
+        #datetime.strptime()
+        #for c in self.conversations:
+         #   c.sort()
 
     def _is_pr_msg(self, msg):
         """Try to separate the emails that are asking for peer-review

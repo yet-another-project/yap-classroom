@@ -51,6 +51,7 @@ if __name__ == '__main__':
     msgs = []
     msgs = get_msgs(maildir, cache)
 
-    print(len(msgs))
+    print("Total:", len(msgs))
 
     pr = ppa.PrToPassAnalyser(msgs)
+    pr.msgs_to_conversations()
