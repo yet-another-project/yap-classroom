@@ -1,8 +1,26 @@
+import bisect
+import email.message
+from datetime import datetime
+
+
+def comp(a, b):
+    t1 = datetime.strptime(a['Date'], '%a, %d %b %Y %H:%M:%S %z').timestamp()
+    t2 = datetime.strptime(b['Date'], '%a, %d %b %Y %H:%M:%S %z').timestamp()
+
+    return t1 < t2
+
+
 class Conversation(object):
-    def __init__(self, message=None):
+    def __init__(self, message=None, key=comp):
+        """Create a conversation by optionally adding message to it
+
+        The key parameter should be a callback similar to comp(a, b), ie. it
+        must be usabe as the __lt__ method of email.message.Message
+        """
         self.msgs = []
         self.in_reply_tos = []
         self.messages_id = []
+        self.key = key
 
         if message:
             self.add_msg(message)
@@ -35,11 +53,7 @@ class Conversation(object):
             self.in_reply_tos.extend(message['In-Reply-To'])
 
         self.messages_id.append(message['Message-Id'])
-        self.msgs.append(message)
 
-        #TODO: use a heap to keep conversations sorted by the Date header, this
-        # will increase performance, but I need to plug in the sort method
-        # somehow because in other contexts conversations may be sorted by
-        # something else, not by datetime
-        # datetime.strptime()
-        # import heapq
+        # allow bisect.insort() to compare messages
+        email.message.Message.__lt__ = self.key
+        bisect.insort(self.msgs, message)
