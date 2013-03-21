@@ -1,11 +1,10 @@
 import bisect
-import email.message
-from datetime import datetime
+import email
 
 
 def comp(a, b):
-    t1 = datetime.strptime(a['Date'], '%a, %d %b %Y %H:%M:%S %z').timestamp()
-    t2 = datetime.strptime(b['Date'], '%a, %d %b %Y %H:%M:%S %z').timestamp()
+    t1 = email.utils.parsedate_to_datetime(a['Date']).timestamp()
+    t2 = email.utils.parsedate_to_datetime(b['Date']).timestamp()
 
     return t1 < t2
 
