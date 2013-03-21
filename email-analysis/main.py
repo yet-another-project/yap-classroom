@@ -34,7 +34,7 @@ def get_msgs(maildir, cachefile):
     except IOError:
         for f in os.listdir(maildir):
             with open(os.path.join(maildir, f), 'rb') as fp:
-                mails.append(email.message_from_binary_file(fp))
+                mails.append(email.message_from_binary_file(fp)) #TODO: insort()
 
         set_cache(cachefile, mails)
 
@@ -51,7 +51,9 @@ if __name__ == '__main__':
     msgs = []
     msgs = get_msgs(maildir, cache)
 
-    print("Total:", len(msgs))
+    msgs.sort(lambda x: email.utils.parsedate_to_datetime(x['Date']).timestamp())
 
     pr = ppa.PrToPassAnalyser(msgs)
     pr.msgs_to_conversations()
+    pr.gather_conversations_data()
+    pr.print_stats()
