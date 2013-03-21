@@ -51,7 +51,7 @@ if __name__ == '__main__':
     msgs = []
     msgs = get_msgs(maildir, cache)
 
-    msgs.sort(lambda x: email.utils.parsedate_to_datetime(x['Date']).timestamp())
+    msgs.sort(key=lambda x: email.utils.parsedate_to_datetime(x['Date']).timestamp())
 
     pr = ppa.PrToPassAnalyser(msgs)
     pr.msgs_to_conversations()

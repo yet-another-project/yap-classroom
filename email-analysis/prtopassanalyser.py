@@ -87,13 +87,15 @@ class PrToPassAnalyser(object):
         for m in c.msgs[1:]:
             author = strip_from_header(m['From'])
 
+            # TODO: here someone (not student) could just reply a fake pass
             if 'pass' in get_email_body(m).lower() and author != student:
                 return True
 
         return False
 
     def print_stats(self):
-        print("{0}/{1} pr/total msgs".format(
+        print("{0}/{1} pr/total messages".format(
             self.pr_no_msgs, self.total_no_msgs))
-        print("{0}/{1} pr/total conv".format(
-            self.pr_no_conversations, self.total_no_conversations))
+        print("{0}/{1} pr/total conversations out of {2} messages".format(
+            self.pr_no_conversations, self.total_no_conversations,
+            self.pr_no_msgs))
