@@ -5,7 +5,7 @@ import email
 import pickle
 import configparser
 
-import prtopassanalyser as ppa
+import prconversationlist as pcl
 
 
 def get_msgs_from_cache(cachefile):
@@ -51,9 +51,16 @@ if __name__ == '__main__':
     msgs = []
     msgs = get_msgs(maildir, cache)
 
+    total_no_msgs = len(msgs)
+
     msgs.sort(key=lambda x: email.utils.parsedate_to_datetime(x['Date']).timestamp())
 
-    pr = ppa.PrToPassAnalyser(msgs)
-    pr.msgs_to_conversations()
-    pr.gather_conversations_data()
-    pr.print_stats()
+    pr_convs = pcl.PrConversationList(msgs)
+
+    print("{0}/{1} pr/total messages".format(pr_convs.no_msgs, total_no_msgs))
+    print("{0}/{1} pr/total conversations out of {2} messages".format(
+        len(pr_convs), pr_convs.total_no_conversations,
+        pr_convs.no_msgs))
+
+    # TODO: author, tutor(s), time to pass, exercise, etc
+    #convs = [c for c in pr_convs]

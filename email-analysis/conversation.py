@@ -6,7 +6,7 @@ class Conversation(object):
         must be usabe as the __lt__ method of email.message.Message
         """
         self.msgs = []
-        self.refs = []
+        self.refs = []  # TODO: use a set not a list
 
         if message:
             self.add_msg(message)

@@ -1,23 +1,23 @@
 import conversation as conv
 from helpers import strip_from_header, get_email_body
 
-
-class PrToPassAnalyser(object):
+class PrConversationList(object):
     blacklist = ('[talk]', '[meta]', '[programming]', '[sign-up]')
     whitelist = ('[pr]', 'peer review', 'peer-review')
 
     def __init__(self, messages):
         """messages param should be a list of email.Message objects that will
-        be analysed
+        be grouped into conversations
         """
         self.msgs = filter(self._is_pr_msg, messages)
         self.conversations = []
-        self.total_no_conversations = 0
-        self.pr_no_conversations = 0
-        self.total_no_msgs = 0
-        self.pr_no_msgs = 0
+        self.no_msgs = 0
 
-    def msgs_to_conversations(self):
+        self._msgs_to_conversations()
+        self.total_no_conversations = len(self.conversations)
+        self._get_valid_conversations()
+
+    def _msgs_to_conversations(self):
         """Populate the self.conversations list with Conversation objects
 
         We assume that the messgaes are sorted chronologically when passed to
@@ -25,8 +25,7 @@ class PrToPassAnalyser(object):
         happen in the conversations, so that all the messages are included in
         the right conversations
         """
-        self.total_no_msgs = 0
-        self.pr_no_msgs = 0
+        self.no_msgs = 0
 
         for m in self.msgs:
             for c in self.conversations:
@@ -36,22 +35,17 @@ class PrToPassAnalyser(object):
             else:  # no conversation found for this message, creating one
                 self.conversations.append(conv.Conversation(m))
 
-        self.total_no_conversations = len(self.conversations)
+    def __len__(self):
+        return len(self.conversations)
 
-    def gather_conversations_data(self):
-        self.pr_no_conversations = 0
+    def __iter__(self):
         for c in self.conversations:
-            if self.is_valid_conversation(c):
-                # TODO: author, tutor(s), time to pass, exercise, etc
-                self.pr_no_conversations += 1
-                pass
+            yield c
 
     def _is_pr_msg(self, msg):
         """Try to separate the emails that are asking for peer-review
         (these are the ones we're intrested about in this class)
         """
-        self.total_no_msgs += 1
-
         # using a blacklist helps me avoid false positives
         for i in self.blacklist:
             if i in msg['Subject'].lower():
@@ -59,7 +53,7 @@ class PrToPassAnalyser(object):
 
         for i in self.whitelist:
             if i in msg['Subject'].lower():
-                self.pr_no_msgs += 1
+                self.no_msgs += 1
                 return True
 
         # TODO: think about:
@@ -72,7 +66,7 @@ class PrToPassAnalyser(object):
         # the start
         return False
 
-    def is_valid_conversation(self, c):
+    def _is_valid_conversation(self, c):
         """A conversation is considered valid only if it has more than one
         message and if a tutor replied with a "pass"
 
@@ -93,9 +87,10 @@ class PrToPassAnalyser(object):
 
         return False
 
-    def print_stats(self):
-        print("{0}/{1} pr/total messages".format(
-            self.pr_no_msgs, self.total_no_msgs))
-        print("{0}/{1} pr/total conversations out of {2} messages".format(
-            self.pr_no_conversations, self.total_no_conversations,
-            self.pr_no_msgs))
+    def _get_valid_conversations(self):
+        valid_conversations = []
+        for c in self.conversations:
+            if self._is_valid_conversation(c):
+                valid_conversations.append(c)
+
+        self.conversations = valid_conversations
