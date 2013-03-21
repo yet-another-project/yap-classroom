@@ -48,8 +48,8 @@ class Conversation(object):
     def add_msg(self, message):
         # using list extend because RFC 822, 4021 and 2822  specify that the
         # In-Reply-To header may contain multiple addresses
-        if 'In-Reply-To' in message.keys():
-            self.in_reply_tos.extend(message['In-Reply-To'])
+        if 'In-Reply-To' in message.keys(): #TODO: debug here
+            self.in_reply_tos.append(message['In-Reply-To'])
 
         self.messages_id.append(message['Message-Id'])
 
