@@ -100,6 +100,9 @@ if __name__ == '__main__':
         total_hours += hours_to_pass
 
     print((
+    "Disclaimer: this data could be inaccurate because valid peer review\n"
+    "emails could have been filtered out due to bugs or the emails analysed\n"
+    "are not up to date with what is in fact on the ML.\n\n"
     "              | #PR\t\t#Total\n"
     "-----------------------------------------------------------------------\n"
     "Messages      | {0} {1:>16}\n"
