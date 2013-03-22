@@ -89,6 +89,7 @@ if __name__ == '__main__':
     msgs.sort(key=lambda x: email.utils.parsedate_to_datetime(x['Date']).timestamp())
 
     pr_convs = pcl.PrConversationList(msgs)
+    pr_no_convs = len(pr_convs)
 
     data = map(analyse_prtopass, pr_convs)
 
@@ -98,11 +99,15 @@ if __name__ == '__main__':
         hours_to_pass = delta.total_seconds()/3600
         total_hours += hours_to_pass
 
-    print("{0}/{1} pr/total messages".format(pr_convs.no_msgs, total_no_msgs))
-    print("{0}/{1} pr/total conversations out of {2} messages".format(
-        len(pr_convs), pr_convs.total_no_conversations,
-        pr_convs.no_msgs))
+    print((
+    "              | #PR\t\t#Total\n"
+    "-----------------------------------------------------------------------\n"
+    "Messages      | {0} {1:>16}\n"
+    "Out of {0} PR messages:\n"
+    "Conversations | {2} {3:>15}\n\n\n"
 
-    print("Total peer review to pass time: {0}".format(total_hours))
-    print("Mean peer review to pass time: {0}".format(
-        total_hours/len(pr_convs)))
+    "#Mean PR to PASS hrs\t\t#Total PR to PASS hrs\n"
+    "-----------------------------------------------------------------------\n"
+    "{4:.2f} {5:>33.2f}"
+    ).format(pr_convs.no_msgs, total_no_msgs, pr_no_convs,
+        pr_convs.total_no_conversations, total_hours/pr_no_convs, total_hours))
