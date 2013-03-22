@@ -6,6 +6,7 @@ def strip_from_header(from_header):
     """
     return from_header[from_header.rfind(' ')+1:].strip('<').strip('>')
 
+
 def get_email_body(email):
     if not email.is_multipart():
         return email.get_payload()

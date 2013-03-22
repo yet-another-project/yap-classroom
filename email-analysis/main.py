@@ -11,13 +11,11 @@ from helpers import strip_from_header, get_email_body
 
 def get_msgs_from_cache(cachefile):
     with open(cachefile, 'rb') as ch:
-        print('from cache')
         return pickle.load(ch)
 
 
 def set_cache(cachefile, data):
     with open(cachefile, 'wb') as ch:
-        print('to cache')
         pickle.dump(data, ch)
 
 
@@ -27,8 +25,6 @@ def get_msgs(maildir, cachefile):
     """
     mails = []
     maildir = os.path.join(maildir, 'cur')
-
-    print(maildir, cachefile)
 
     try:
         mails = get_msgs_from_cache(cachefile)
