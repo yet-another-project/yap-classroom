@@ -74,24 +74,11 @@ def analyse_prtopass(c):
     return data
 
 
-if __name__ == '__main__':
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-
-    maildir = os.path.abspath(os.path.expanduser(config['paths']['maildir']))
-    cache = os.path.abspath(os.path.expanduser(config['paths']['cachefile']))
-
-    msgs = []
-    msgs = get_msgs(maildir, cache)
-
-    total_no_msgs = len(msgs)
-
-    msgs.sort(key=lambda x: email.utils.parsedate_to_datetime(x['Date']).timestamp())
-
-    pr_convs = pcl.PrConversationList(msgs)
+def pr_to_pass(data, pr_convs):
+    """Display the overall PR to PASS time and the mean PR to PASS time
+    Also display the number of messages and conversations
+    """
     pr_no_convs = len(pr_convs)
-
-    data = map(analyse_prtopass, pr_convs)
 
     total_hours = 0
     for d in data:
@@ -114,3 +101,49 @@ if __name__ == '__main__':
     "{4:.2f} {5:>33.2f}"
     ).format(pr_convs.no_msgs, total_no_msgs, pr_no_convs,
         pr_convs.total_no_conversations, total_hours/pr_no_convs, total_hours))
+
+
+def pr_per_student(data, pr_convs):
+    """Display the total PR time and the mean PR time per student"""
+    print("<student_email>: <mean_pr_time>/<total_pr_time>")
+
+    student_data = {}
+
+    for d in data:
+        delta = d['pass_date'] - d['req_date']
+        hours_to_pass = delta.total_seconds()/3600
+
+        if d['student'] in student_data.keys():
+            # number of exercises
+            student_data[d['student']][0] += 1
+            # total pr to pass hours accumulated by a student
+            student_data[d['student']][1] += hours_to_pass
+        else:
+            student_data[d['student']] = [1, hours_to_pass]
+
+    for k in student_data:
+        print("{0}: {1:.2f}/{2:.2f}".format(k,
+            student_data[k][1]/student_data[k][0], student_data[k][1]))
+
+
+if __name__ == '__main__':
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
+    maildir = os.path.abspath(os.path.expanduser(config['paths']['maildir']))
+    cache = os.path.abspath(os.path.expanduser(config['paths']['cachefile']))
+
+    msgs = []
+    msgs = get_msgs(maildir, cache)
+
+    total_no_msgs = len(msgs)
+
+    msgs.sort(key=lambda x: email.utils.parsedate_to_datetime(x['Date']).timestamp())
+
+    pr_convs = pcl.PrConversationList(msgs)
+
+    data = [i for i in map(analyse_prtopass, pr_convs)]
+
+    pr_to_pass(data, pr_convs)
+    print("\n")
+    pr_per_student(data, pr_convs)
