@@ -144,12 +144,14 @@ def histogram(data):
     plot.ylabel("Percent of PR requests completeted in X days")
     plot.semilogx(list(hist_days.keys()), list(hist_days.values()), 'ro',basex=2)
     plot.savefig('hist_days.png')
+    print("Written hist_days.png")
 
     plot.clf()
     plot.xlabel("Hours")
     plot.ylabel("Percent of PR requests completeted in X Hours")
     plot.semilogx(list(hist_hrs.keys()), list(hist_hrs.values()), 'ro', basex=2)
     plot.savefig('hist_hrs.png')
+    print("Written hist_hrs.png")
 
 
 def pr_per_student(data):
@@ -213,4 +215,3 @@ if __name__ == '__main__':
     histogram(data)
     print("\n")
     get_median(data)
-
