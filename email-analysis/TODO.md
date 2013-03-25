@@ -1,4 +1,7 @@
-* Inspect the code that does the analyses and DRY it
+* check if the cache is expired
+ scenario: offlineimap, ./main.py, wait 1 week, offlineimap, ./main.py (this
+ runs on the same cache which is old and outdated, I should check if there are
+ newer emails)
 
 
 22:52:02   @flavius | o istograma poti sa faci?                                                                                 │
