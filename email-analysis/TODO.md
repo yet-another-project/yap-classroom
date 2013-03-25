@@ -1,3 +1,6 @@
+* Inspect the code that does the analyses and DRY it
+
+
 22:52:02   @flavius | o istograma poti sa faci?                                                                                 │
 22:52:26   @paullik | histograma a ce?                                                                                          │
 22:52:33    +Paul92 | numarul de exercitii nu ar fi util, eventual pe fiecare exercitiu timpul necesar?                         │

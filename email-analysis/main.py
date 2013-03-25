@@ -4,6 +4,9 @@ import os
 import email
 import pickle
 import configparser
+import math
+from collections import defaultdict
+import matplotlib.pyplot as plot
 
 import prconversationlist as pcl
 from helpers import strip_from_header, get_email_body
@@ -104,6 +107,73 @@ def pr_to_pass(data, pr_convs):
         pr_convs.total_no_conversations, total_hours/pr_no_convs, total_hours))
 
 
+def get_median(data):
+    """Display the median of the PR to PASS time data set"""
+    msg = "The median value is {0:.2f} hours"
+    hrs_to_pass = []
+
+    for d in data:
+        delta = d['pass_date'] - d['req_date']
+        hrs_to_pass.append(delta.total_seconds()/3600)
+
+    hrs_to_pass.sort()
+
+    l = len(hrs_to_pass)
+
+    half = l//2
+
+    if l % 2 == 0:
+        print(msg.format((hrs_to_pass[half]+hrs_to_pass[half-1])/2))
+    else:
+        print(msg.format(hrs_to_pass[half]))
+
+
+def histogram(data):
+    """Plot and display what percentage of the PRs took a certain number of days
+    """
+    no_days = defaultdict(int)
+    no_hrs = defaultdict(int)
+    hist_days = {}
+    hist_hrs = {}
+    ct = 0
+
+    for d in data:
+        hrs = (d['pass_date'] - d['req_date']).total_seconds()/3600
+        days = hrs/24
+        no_days[math.ceil(days)] += 1
+        no_hrs[math.ceil(hrs)] += 1
+        ct += 1
+
+    print(("Number of days: percentage of the PRs that took that number of"
+        " days to complete\n"))
+    for k, v in sorted(no_days.items()):
+        hist_days[k] = (100*v)/ct
+        print("{0}: {1:.2f}%".format(k, hist_days[k]))
+
+    plot.xlabel("Days")
+    plot.ylabel("Percent of PR requests completeted in X days")
+    #plot.yticks(range(0, 100, 5))
+
+    #plot.axis(ymax=100)
+
+    plot.semilogx(list(hist_days.keys()), list(hist_days.values()), 'ro',basex=2)
+    plot.savefig('hist_days.png')
+
+    print(("\nNumber of hours: percentage of the PRs that took that number of"
+        " hours to complete\n"))
+    for k, v in sorted(no_hrs.items()):
+        hist_hrs[k] = (100*v)/ct
+        print("{0}: {1:.2f}%".format(k, hist_hrs[k]))
+
+    plot.clf()
+
+    plot.xlabel("Hours")
+    plot.ylabel("Percent of PR requests completeted in X Hours")
+
+    plot.semilogx(list(hist_hrs.keys()), list(hist_hrs.values()), 'ro', basex=2)
+    plot.savefig('hist_hrs.png')
+
+
 def pr_per_student(data, pr_convs):
     """Display the total PR time and the mean PR time per student"""
     print("<student_email>: <mean_pr_time>/<total_pr_time>")
@@ -149,3 +219,8 @@ if __name__ == '__main__':
     pr_to_pass(data, pr_convs)
     print("\n")
     pr_per_student(data, pr_convs)
+    print("\n")
+    histogram(data)
+    print("\n")
+    get_median(data)
+
