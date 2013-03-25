@@ -118,31 +118,32 @@ def histogram(data):
     no_hrs = defaultdict(int)
     hist_days = {}
     hist_hrs = {}
-    ct = 0
+    l = len(data)
 
     for d in data:
-        hrs = (d['pass_date'] - d['req_date']).total_seconds()/3600
+        hrs = d['delta_time']/3600
         days = hrs/24
         no_days[math.ceil(days)] += 1
         no_hrs[math.ceil(hrs)] += 1
-        ct += 1
 
     print(("Number of days: percentage of the PRs that took that number of"
         " days to complete\n"))
+
     for k, v in sorted(no_days.items()):
-        hist_days[k] = (100*v)/ct
+        hist_days[k] = (100*v)/l
         print("{0}: {1:.2f}%".format(k, hist_days[k]))
+
+    print(("\nNumber of hours: percentage of the PRs that took that number of"
+        " hours to complete\n"))
+
+    for k, v in sorted(no_hrs.items()):
+        hist_hrs[k] = (100*v)/l
+        print("{0}: {1:.2f}%".format(k, hist_hrs[k]))
 
     plot.xlabel("Days")
     plot.ylabel("Percent of PR requests completeted in X days")
     plot.semilogx(list(hist_days.keys()), list(hist_days.values()), 'ro',basex=2)
     plot.savefig('hist_days.png')
-
-    print(("\nNumber of hours: percentage of the PRs that took that number of"
-        " hours to complete\n"))
-    for k, v in sorted(no_hrs.items()):
-        hist_hrs[k] = (100*v)/ct
-        print("{0}: {1:.2f}%".format(k, hist_hrs[k]))
 
     plot.clf()
     plot.xlabel("Hours")
@@ -155,11 +156,10 @@ def pr_per_student(data):
     """Display the total PR time and the mean PR time per student"""
     print("<student_email>: <mean_pr_time>/<total_pr_time>")
 
-    student_data = {}
+    student_data = defaultdict(list)
 
     for d in data:
-        delta = d['pass_date'] - d['req_date']
-        hours_to_pass = delta.total_seconds()/3600
+        hours_to_pass = d['delta_time']/3600
 
         if d['student'] in student_data.keys():
             # number of exercises
