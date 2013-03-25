@@ -122,7 +122,8 @@ def pr_per_student(data, pr_convs):
         else:
             student_data[d['student']] = [1, hours_to_pass]
 
-    for k in student_data:
+    # display stats sorted by total hours
+    for k in sorted(student_data, key=lambda x: student_data[x][1]):
         print("{0}: {1:.2f}/{2:.2f}".format(k,
             student_data[k][1]/student_data[k][0], student_data[k][1]))
 
