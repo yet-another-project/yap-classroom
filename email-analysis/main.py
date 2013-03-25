@@ -97,12 +97,8 @@ def pr_to_pass(data, pr_no_convs):
 def get_median(data):
     """Display the median of the PR to PASS time data set"""
     msg = "The median value is {0:.2f} hours"
-    hrs_to_pass = []
 
-    for d in data:
-        delta = d['pass_date'] - d['req_date']
-        hrs_to_pass.append(delta.total_seconds()/3600)
-
+    hrs_to_pass = [d['delta_time']/3600 for d in data]
     hrs_to_pass.sort()
 
     l = len(hrs_to_pass)
