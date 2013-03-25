@@ -63,6 +63,7 @@ def analyse_prtopass(c):
     'req_date': the peer review request datetime
     'pass_date': the datetime when the student got "pass"
     'exercise': the exercise to which the user requested peer review
+    'delta_time': the time in seconds between req_date and pass_date
     }
     """
     data = {}
@@ -75,36 +76,22 @@ def analyse_prtopass(c):
 
     data['exercise'] = c.msgs[0]['Subject']
 
+    data['delta_time'] = (data['pass_date'] - data['req_date']).total_seconds()
+
     return data
 
 
-def pr_to_pass(data, pr_convs):
-    """Display the overall PR to PASS time and the mean PR to PASS time
-    Also display the number of messages and conversations
-    """
-    pr_no_convs = len(pr_convs)
-
+def pr_to_pass(data, pr_no_convs):
+    """Display the overall PR to PASS time and the mean PR to PASS time"""
     total_hours = 0
     for d in data:
-        delta = d['pass_date'] - d['req_date']
-        hours_to_pass = delta.total_seconds()/3600
-        total_hours += hours_to_pass
+        total_hours += d['delta_time']/3600
 
     print((
-    "Disclaimer: this data could be inaccurate because valid peer review\n"
-    "emails could have been filtered out due to bugs or the emails analysed\n"
-    "are not up to date with what is in fact on the ML.\n\n"
-    "              | #PR\t\t#Total\n"
-    "-----------------------------------------------------------------------\n"
-    "Messages      | {0} {1:>16}\n"
-    "Out of {0} PR messages:\n"
-    "Conversations | {2} {3:>15}\n\n\n"
-
     "#Mean PR to PASS hrs\t\t#Total PR to PASS hrs\n"
     "-----------------------------------------------------------------------\n"
-    "{4:.2f} {5:>33.2f}"
-    ).format(pr_convs.no_msgs, total_no_msgs, pr_no_convs,
-        pr_convs.total_no_conversations, total_hours/pr_no_convs, total_hours))
+    "{0:.2f} {1:>33.2f}"
+    ).format(total_hours/pr_no_convs, total_hours))
 
 
 def get_median(data):
@@ -152,10 +139,6 @@ def histogram(data):
 
     plot.xlabel("Days")
     plot.ylabel("Percent of PR requests completeted in X days")
-    #plot.yticks(range(0, 100, 5))
-
-    #plot.axis(ymax=100)
-
     plot.semilogx(list(hist_days.keys()), list(hist_days.values()), 'ro',basex=2)
     plot.savefig('hist_days.png')
 
@@ -166,15 +149,13 @@ def histogram(data):
         print("{0}: {1:.2f}%".format(k, hist_hrs[k]))
 
     plot.clf()
-
     plot.xlabel("Hours")
     plot.ylabel("Percent of PR requests completeted in X Hours")
-
     plot.semilogx(list(hist_hrs.keys()), list(hist_hrs.values()), 'ro', basex=2)
     plot.savefig('hist_hrs.png')
 
 
-def pr_per_student(data, pr_convs):
+def pr_per_student(data):
     """Display the total PR time and the mean PR time per student"""
     print("<student_email>: <mean_pr_time>/<total_pr_time>")
 
@@ -213,12 +194,25 @@ if __name__ == '__main__':
     msgs.sort(key=lambda x: email.utils.parsedate_to_datetime(x['Date']).timestamp())
 
     pr_convs = pcl.PrConversationList(msgs)
+    pr_no_convs = len(pr_convs)
 
     data = [i for i in map(analyse_prtopass, pr_convs)]
 
-    pr_to_pass(data, pr_convs)
+    print((
+    "Disclaimer: this data could be inaccurate because valid peer review\n"
+    "emails could have been filtered out due to bugs or the emails analysed\n"
+    "are not up to date with what is in fact on the ML.\n\n"
+    "              | #PR\t\t#Total\n"
+    "-----------------------------------------------------------------------\n"
+    "Messages      | {0} {1:>16}\n"
+    "Out of {0} PR messages:\n"
+    "Conversations | {2} {3:>15}\n\n\n"
+    ).format(pr_convs.no_msgs, total_no_msgs, pr_no_convs,
+        pr_convs.total_no_conversations))
+
+    pr_to_pass(data, pr_no_convs)
     print("\n")
-    pr_per_student(data, pr_convs)
+    pr_per_student(data)
     print("\n")
     histogram(data)
     print("\n")
