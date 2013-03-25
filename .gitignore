@@ -3,3 +3,4 @@ v*env/*
 *.ini
 *.cache
 *.pyc
+*.png
